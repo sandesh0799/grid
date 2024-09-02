@@ -5,6 +5,8 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import "ag-grid-autocomplete-editor/dist/main.css";
 import AutocompleteSelectCellEditor from 'ag-grid-autocomplete-editor';
+import { MatDialog } from '@angular/material/dialog';
+import { FormPopupComponent } from '../form-popup/form-popup.component';
 @Component({
   selector: 'app-grid-form',
   standalone: true,
@@ -13,7 +15,10 @@ import AutocompleteSelectCellEditor from 'ag-grid-autocomplete-editor';
   styleUrl: './grid-form.component.scss'
 })
 export class GridFormComponent {
+  constructor(public dialog: MatDialog) { }
   gridApi!: GridApi;
+  rowStyle = { background: '#ff8080' };
+  private dialogRef: any;
   selectData = [
     { value: 0, label: "this" },
     { value: 1, label: "is" },
@@ -35,10 +40,6 @@ export class GridFormComponent {
   columnDefs: ColDef[] = [
     {
       headerName: 'Make', field: 'make', editable: true,
-      // cellEditor: 'agSelectCellEditor',
-      // cellEditorParams: {
-      //   values: ['Tesla', 'Ford', 'Toyota'],
-      // },
       cellEditor: AutocompleteSelectCellEditor,
       cellEditorParams: {
         required: true,
@@ -70,9 +71,9 @@ export class GridFormComponent {
       },
     };
   data = [
-    { make: 'Toyota', model: 'Celica', price: 35000, "date": "24/08/2008", "country": "Russia", },
-    { make: 'Ford', model: 'Mondeo', price: 32000, "date": "12/08/2012", "country": "india", },
-    { make: 'Porsche', model: 'Boxster', price: 72000, "date": "12/08/2012", "country": "china", },
+    { id: 1, make: 'Toyota', model: 'Celica', price: 35000, "date": "24/08/2008", "country": "Russia", },
+    { id: 2, make: 'Ford', model: 'Mondeo', price: 32000, "date": "12/08/2012", "country": "india", },
+    { id: 3, make: 'Porsche', model: 'Boxster', price: 72000, "date": "12/08/2012", "country": "china", },
 
   ];
   rowData = this.data.map((rowData) => {
@@ -83,6 +84,7 @@ export class GridFormComponent {
       countryObject: {
         name: rowData.country,
       },
+      isValid: true
     };
   })
   onGridReady(params: any) {
@@ -90,8 +92,60 @@ export class GridFormComponent {
     console.log(params.api.getModel().rowsToDisplay.map((item: any) => item.data))
   }
 
+  getRowId = (params: any) => {
+    return params.data.id.toString()
+  }
+
+  getRowStyle = (params: any) => {
+    return params.data.isValid ? { background: '' } : { background: '#FFD6D7' };
+  };
   onRowSelect(event: any) {
     const selectedRows = this.gridApi.getSelectedRows();
     console.log(selectedRows);
+  }
+  // handleRowClicked(event: any) {
+  //   console.log(this.gridApi.getSelectedRows())
+  //   if (event.node.selected) {
+  //     const selectedRow = event.node.data;
+
+  //     const dialogRef = this.dialog.open(FormPopupComponent, {
+  //       data: selectedRow
+  //     });
+
+  //     dialogRef.afterClosed().subscribe(result => {
+  //       if (result) {
+  //         // Update rowData with new values
+  //         const index = this.rowData.findIndex(row => row === selectedRow);
+  //         if (index !== -1) {
+  //           this.rowData[index] = result;
+  //         }
+  //       }
+  //     });
+  //   }
+  // }
+  onRowSelected(event: any) {
+    if (event.node.selected) {
+      const selectedRow = event.node.data;
+      if (this.dialogRef) {
+        // Show a snackbar notification
+        console.log('alredy open')
+        return;
+      }
+      this.dialogRef = this.dialog.open(FormPopupComponent, {
+        data: selectedRow
+      });
+
+      this.dialogRef.afterClosed().subscribe((result:any) => {
+        console.log('11111111')
+        this.dialogRef = null;
+        if (result) {
+          console.log(result)
+          // Assuming result includes the id and updated values
+          this.gridApi.applyTransaction({ update: [result] });
+          console.log(this.rowData);
+        }
+      });
+
+    }
   }
 }

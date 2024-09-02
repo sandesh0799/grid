@@ -1,4 +1,4 @@
 <ag-grid-angular style="width: 100%; height: 400px;" class="ag-theme-alpine" [rowData]="rowData"
     [columnDefs]="columnDefs" [dataTypeDefinitions]="dataTypeDefinitions" (rowSelected)="onRowSelect($event)"
-    (gridReady)="onGridReady($event)" [readOnlyEdit]="true">
+    (gridReady)="onGridReady($event)" [readOnlyEdit]="true" (rowDoubleClicked)="onRowSelected($event)" rowSelection="single" [getRowId]="getRowId" [rowStyle]="rowStyle" [getRowStyle]="getRowStyle">
 </ag-grid-angular>

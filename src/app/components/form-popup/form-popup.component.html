@@ -1,0 +1,15 @@
+<div class="popup-container">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <label for="make">Make:</label>
+        <input id="make" formControlName="make" />
+
+        <label for="model">Model:</label>
+        <input id="model" formControlName="model" />
+
+        <label for="price">Price:</label>
+        <input id="price" type="number" formControlName="price" />
+
+        <button type="submit">Save</button>
+        <button type="button" (click)="onClose()">Close</button>
+    </form>
+</div>
